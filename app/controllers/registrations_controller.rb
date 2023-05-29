@@ -8,7 +8,7 @@ class RegistrationsController < ApplicationController
       render json: { success: "Registration success" }, status: :ok
     else
       render json: { error: @user.errors.messages.map { |msg, desc|
-      msg.to_s + " " + desc[0] }.join(', ') }, status: :unauthorized
+      msg.to_s + " " + desc[0] }.join(', ') }, status: :bad_request
     end
   end
 

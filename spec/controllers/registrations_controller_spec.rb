@@ -49,9 +49,9 @@ RSpec.describe RegistrationsController, type: :controller do
         }.not_to change(User, :count)
       end
 
-      it "returns an unauthorized response" do
+      it "returns an bad_request response" do
         post :create, params: invalid_params
-        expect(response).to have_http_status(:unauthorized)
+        expect(response).to have_http_status(:bad_request)
       end
 
       it "returns the error messages" do

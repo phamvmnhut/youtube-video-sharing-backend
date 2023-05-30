@@ -30,7 +30,14 @@ RSpec.describe SharedsController, type: :controller do
 
       before do
         allow(controller).to receive(:current_user).and_return(user)
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
+        stub_request(:get, "https://www.googleapis.com/youtube/v3/videos?id=4GjXSI6jcLI&key=AIzaSyCaT6wF_cz9Qy9n0un3KpkwT9q5nhwRFKQ&part=snippet")
+        .with(headers: {
+          'Accept' => '*/*',
+          'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+          'User-Agent' => 'Ruby'
+        })
+        .to_return(status: 200, body: { items: [{snippet: {title: "Video title", description: "Video desciption"}}] }.to_json)
       end
 
       it "creates a new shared" do
@@ -59,23 +66,23 @@ RSpec.describe SharedsController, type: :controller do
       end
 
       it "does not create a new shared" do
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
         expect {
           post :create, params: invalid_params
         }.not_to change(Shared, :count)
       end
 
       it "returns a not found response" do
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
         post :create, params: invalid_params
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:bad_request)
       end
 
       it "returns the error message" do
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
         post :create, params: invalid_params
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response["error"]).to eq("url can't be blank")
+        expect(parsed_response["error"]).to eq("url video is invalid")
       end
     end
   end
@@ -91,13 +98,13 @@ RSpec.describe SharedsController, type: :controller do
 
     context "when shared is found" do
       it "returns a success response" do
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
         get :show, params: { id: shared.id }
         expect(response).to have_http_status(:ok)
       end
 
       it "returns the requested shared" do
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
         get :show, params: { id: shared.id }
         parsed_response = JSON.parse(response.body)
         expect(parsed_response["data"]["id"]).to eq(shared.id)
@@ -106,12 +113,12 @@ RSpec.describe SharedsController, type: :controller do
 
     context "when shared is not found" do
       it "returns a not found response" do
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
         get :show, params: { id: 999 }
         expect(response).to have_http_status(:not_found)
       end
       it "returns the error message" do
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
         get :show, params: { id: 999 }
         parsed_response = JSON.parse(response.body)
         expect(parsed_response["error"]).to eq("Shared not found")
@@ -130,13 +137,13 @@ RSpec.describe SharedsController, type: :controller do
     
     it "destroys the shared" do
       expect {
-        request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+        request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
         delete :destroy, params: { id: shared.id }
       }.to change(Shared, :count).by(-1)
     end
     
     it "returns a no content response" do
-      request.headers.merge!('HTTP_AUTH_TOKEN': auth_token)
+      request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
       delete :destroy, params: { id: shared.id }
       expect(response).to have_http_status(:no_content)
     end

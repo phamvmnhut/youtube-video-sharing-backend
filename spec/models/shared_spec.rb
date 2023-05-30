@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Shared, type: :model do
   describe "validations" do
     it "is valid with a valid url format" do
-      shared = Shared.new(user: User.new, url: "http://www.youtube.com/watch?v=ABC123")
+      shared = Shared.new(user: User.new, url: "http://www.youtube.com/watch?v=ABC123", title: "Video title", description: "Video description")
       expect(shared).to be_valid
     end
 
@@ -24,6 +24,18 @@ RSpec.describe Shared, type: :model do
       expect(shared).not_to be_valid
       expect(shared.errors[:url]).to include("is invalid")
     end
+
+    it "is not valid without a title" do
+      shared = Shared.new(user: User.new)
+      expect(shared).not_to be_valid
+      expect(shared.errors[:title]).to include("can't be blank")
+    end
+
+    it "is not valid without a description" do
+      shared = Shared.new(user: User.new)
+      expect(shared).not_to be_valid
+      expect(shared.errors[:description]).to include("can't be blank")
+    end
   end
 
   describe "associations" do
@@ -35,8 +47,8 @@ RSpec.describe Shared, type: :model do
 
     it "has many shareds" do
       user = User.create(name: "John Doe", email: "john@example.com", password: "password", password_confirmation: "password")
-      shared1 = Shared.create(user: user, url: "http://www.youtube.com/watch?v=ABC123")
-      shared2 = Shared.create(user: user, url: "http://www.youtube.com/watch?v=DEF456")
+      shared1 = Shared.create(user: user, url: "http://www.youtube.com/watch?v=ABC123", title: "Video title", description: "Video desciption")
+      shared2 = Shared.create(user: user, url: "http://www.youtube.com/watch?v=DEF456", title: "Video title", description: "Video desciption")
 
       expect(user.shareds.count).to eq(2)
       expect(user.shareds).to include(shared1, shared2)
@@ -58,24 +70,30 @@ RSpec.describe Shared, type: :model do
   end
 
   describe 'after_create_commit' do
+    let!(:redis) { MockRedis.new }
+
+    before do
+      allow(Redis).to receive(:new).and_return(redis)
+    end
+
     let!(:user) { create(:user) }
-    let!(:shared) { create(:shared, user: user) }
+    let!(:shared) { build(:shared, user: user) }
 
     it 'queues a SendNotificationJob after creation' do
       expect {
-        shared
+        shared.save
       }.to have_enqueued_job(SendNotificationJob)
-        .with(shared.id, shared.url, user.name, user.email)
-        .on_queue('default')
+        .with(anything, shared.url, shared.title, user.name, user.email)
+        .on_queue(:default)
     end
 
     it 'sends a notification to the user' do
-      expect(SendNotificationJob).to receive(:perform_later)
-        .with(shared.id, shared.url, user.name, user.email)
+      allow(SendNotificationJob).to receive(:perform_later)
 
-      perform_enqueued_jobs do
-        shared
-      end
+      shared.save
+
+      expect(SendNotificationJob).to have_received(:perform_later)
+        .with(shared.id, shared.url, shared.title, user.name, user.email)
     end
 
   end

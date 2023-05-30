@@ -57,7 +57,4 @@ Rails.application.configure do
 
   # Annotate rendered view with file names.
   # config.action_view.annotate_rendered_view_with_filenames = true
-
-  # Cấu hình trình xử lý hàng đợi cho Active Job trong môi trường thử nghiệm
-  config.active_job.queue_adapter = :test
 end

@@ -13,7 +13,20 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+require "mock_redis"
+require 'sidekiq/testing'
+
 RSpec.configure do |config|
+  config.before(:each) do
+    mock_redis = MockRedis.new
+    allow(Redis).to receive(:new).and_return(mock_redis)
+  end
+
+  config.before(:each) do
+    Sidekiq::Testing.inline!
+  end
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.

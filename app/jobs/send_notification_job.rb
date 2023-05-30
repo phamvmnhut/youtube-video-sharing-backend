@@ -1,12 +1,13 @@
 class SendNotificationJob < ApplicationJob
   queue_as :default
 
-  def perform(id, url, name, email)
+  def perform(id, url, title, name, email)
     ActionCable.server.broadcast("NotificationsChannel", {
       id:,
       url:,
       name:,
-      email:
+      email:,
+      title:
     })
   end
 end

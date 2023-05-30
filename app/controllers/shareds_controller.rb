@@ -4,7 +4,7 @@ class SharedsController < ApplicationController
 
   def index
     begin
-      @shared = Shared.all
+      @shared = Shared.all.order(created_at: :desc)
       render json: { data: @shared } , include: [:user], status: :ok
     rescue ActiveRecord::RecordNotFound
       render json: { error: "Shared not found"}, status: :not_found
@@ -12,7 +12,29 @@ class SharedsController < ApplicationController
   end
 
   def create
-    @shared = current_user.shareds.new(shared_params)
+    url_input = shared_params[:url]
+    result = nil
+    begin
+      result = HttpRequestHelper.get_youtube_video_info(url_input)
+      if result["items"].size != 1
+        raise ArgumentError, "url video is invalid"
+      end
+    rescue
+      return render json: { error: "url video is invalid" }, status: :bad_request
+    end
+
+    item = result["items"].first
+    snippet = item["snippet"]
+    title = snippet["title"]
+    description = snippet["description"]
+
+    new_shared_params = {
+      url: url_input,
+      title: title,
+      description: description
+    }
+  
+    @shared = current_user.shareds.new(new_shared_params)
     if @shared.save
       render json: { success: "successfully created", data: @shared }, status: :ok
     else

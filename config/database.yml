@@ -81,23 +81,20 @@ test:
 #
 production:
   <<: *default
-  database: youtube_video_sharing_production
-  username: youtube_video_sharing
-  username: postgres
-  password: root
+  url: <%= ENV["DATABASE_URL"] %>
 
 development:
   adapter: postgresql
   encoding: unicode
   database: myapp_development
   pool: 5
-  username: postgres
-  password: root
+  username: <%= ENV["DATABASE_USERNAME"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
 
 test:
   adapter: postgresql
   encoding: unicode
   database: myapp_test
   pool: 5
-  username: postgres
-  password: root
+  username: <%= ENV["DATABASE_USERNAME"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>

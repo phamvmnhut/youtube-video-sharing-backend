@@ -4,7 +4,6 @@ class SessionsController < ApplicationController
 
   def create
     @user = User.find_by(email: params[:email])
-    puts @user
     if @user && @user.authenticate(params[:password])
       token = JsonWebTokenService.encode({ email: @user.email })
       render json: { auth_token: token, data: @user }

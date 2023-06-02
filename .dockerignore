@@ -1,0 +1,15 @@
+.git
+.gitignore
+.DS_Store
+README.md
+/Dockerfile
+/env.*
+/log
+/tmp
+
+/frontend
+nginx.conf
+ref.md
+env.md
+docker-compose.yml
+/images

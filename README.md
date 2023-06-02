@@ -102,27 +102,24 @@ Move to frontend folder and run
 ```
 yarn dev
 ```
-2. Access the application in a web browser
+2. Access the application in a web browser   
+We have a frontend app run in port 8080 and rails app run in port 3000   
 - Open your browser in http://localhost:8080
 3. Run test
 ```
 rspec
 ```
 ## (BE/FS) Docker Deployment: Instructions for deploying the application using Docker, including building the Docker image and running containers (optional for Backend developer)
-| Current guide is for reference only. Because it contains some bugs.
-
+- We use docker-compose to deploy this project with some config in docker-compose.yml file. We use directly redis, postgresql image with alpine tag to have a smallest zise. And with rails app and nextjs, we use build more layer to optimize the size of image.    
 - Create a new file for env named .env and setup some information
 ```
 YOUTUBE_API_KEY = <your-youtube-api-key>
 ```
 - Edit some information in docker-compose for your purpose:   
-  + Setup some export port for service such as nextjs, nginx, or rails   
+  + Setup some export port for service such as nextjs, or rails   
   + Setup some evironment for postgresql database: url, password, username   
   + Setup SECRET_KEY_BASE   
 
-
-- Edit nginx.config   
-| <strong>Current bug in here</strong>
 - Run build docker-compose
 ```
 docker-compose build
@@ -131,7 +128,7 @@ docker-compose build
 ```
 docker-compose up -d
 ```
-
+Access the application in http://localhost:8080
 ## Usage: A brief guide outlining how to use the application, including any specific features or functionality the reviewer should be aware of.
 - Register and login user   
   + On right corner, we have a button for register/login. It will show a modal. We can switch to register and login in this.   
@@ -139,7 +136,7 @@ docker-compose up -d
   + In this popup, we can click on refresh button to fresher our data on homepage.   
 ## Troubleshooting: Common issues that may arise during setup and their potential solutions.
 - I have more issues when start with this project, because it is the first time I learn and run with Ruby, Rails technology.
-- Currently, I have a bug in deploy project by docker, docker-compose. I had built and run all image successful, but it can't work together. I think it is because Nginx can't reach to rails service. I am will try do best to fix this bug ASAP. 
+- I have some bug when setup docker and docker-compose to deploy project such as: how to manage network with multi container, how to optimize the size of image.
 
 ## Image demo and runing some services
 - Docker running
@@ -163,3 +160,6 @@ docker-compose up -d
 - Have a notification
 
 ![Have a notification](./images/have-a-notification.png)
+- Docker image optimize
+
+![Docker image optimize](./images/docker-image-optimize.png)

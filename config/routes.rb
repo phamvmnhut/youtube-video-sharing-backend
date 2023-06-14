@@ -10,4 +10,6 @@ Rails.application.routes.draw do
   resources :sessions, only: [ :create, :destroy ]
   resources :shareds, only: [ :index, :create, :show, :destroy ]
   resources :users, only: [ :show ]
+  resources :likes, only: [ :show, :create, :update, :destroy ]
+  get '/likes_by_shared/:shared_id', to: 'likes#show_by_shared'
 end

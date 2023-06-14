@@ -9,4 +9,7 @@ class User < ApplicationRecord
   validates :name, presence: true, :length => {:within => 4..20}
 
   has_many :shareds
+
+  has_many :likes
+
 end

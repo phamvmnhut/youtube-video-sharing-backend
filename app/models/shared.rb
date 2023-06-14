@@ -1,6 +1,8 @@
 class Shared < ApplicationRecord
   belongs_to :user
 
+  has_many :likes
+
   yt_regexp = /((http(s)?:\/\/)?)(www\.)?((youtube\.com\/)|(youtu.be\/))[\S]+/
   validates :url, presence: true, format: { with:  yt_regexp }
   validates :title, presence: true

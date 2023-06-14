@@ -7,17 +7,46 @@ RSpec.describe SharedsController, type: :controller do
   # end
 
   describe "GET #index" do
-    let!(:shareds) { create_list(:shared, 3) }
+    let!(:shareds) { create_list(:shared, 15) }
 
-    it "returns a success response" do
-      get :index
-      expect(response).to have_http_status(:ok)
+    context 'when page and per_page parameters are provided' do
+      it 'returns the specified page of shareds' do
+        get :index, params: { page: 2, per_page: 5 }
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['data'].size).to eq(5)
+      end
+
+      it 'returns the correct pagination information' do
+        get :index, params: { page: 2, per_page: 5 }
+
+        pagination_info = JSON.parse(response.body)['pagination']
+
+        expect(pagination_info['total_pages']).to eq(3)
+        expect(pagination_info['current_page']).to eq(2)
+        expect(pagination_info['total_records']).to eq(15)
+        expect(pagination_info['per_page']).to eq(5)
+      end
     end
 
-    it "returns all shareds" do
-      get :index
-      parsed_response = JSON.parse(response.body)
-      expect(parsed_response["data"].length).to eq(3)
+    context 'when page and per_page parameters are not provided' do
+      it 'returns the first page with default per_page value' do
+        get :index
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['data'].size).to eq(10)
+      end
+
+      it 'returns the correct default pagination information' do
+        get :index
+
+        pagination_info = JSON.parse(response.body)['pagination']
+
+        expect(pagination_info['total_pages']).to eq(2)
+        expect(pagination_info['current_page']).to eq(1)
+        expect(pagination_info['total_records']).to eq(15)
+        expect(pagination_info['per_page']).to eq(10)
+      end
     end
   end
 
@@ -25,13 +54,17 @@ RSpec.describe SharedsController, type: :controller do
     let!(:user) { create(:user) }
     let!(:auth_token) { JsonWebTokenService.encode({ email: user.email }) }
 
+    before do
+      ENV['YOUTUBE_API_KEY'] = 'my-youtube-api-key'
+    end
+
     context "when valid parameters are provided" do
-      let!(:valid_params) { { shareds: { url: "https://www.youtube.com/watch?v=4GjXSI6jcLI" } } }
+      let!(:valid_params) { { shareds: { url: "https://www.youtube.com/watch?v=12345" } } }
 
       before do
         allow(controller).to receive(:current_user).and_return(user)
         request.headers.merge!(HTTP_AUTH_TOKEN: auth_token)
-        stub_request(:get, "https://www.googleapis.com/youtube/v3/videos?id=4GjXSI6jcLI&key=AIzaSyCaT6wF_cz9Qy9n0un3KpkwT9q5nhwRFKQ&part=snippet")
+        stub_request(:get, "https://www.googleapis.com/youtube/v3/videos?id=12345&key=my-youtube-api-key&part=snippet")
         .with(headers: {
           'Accept' => '*/*',
           'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
@@ -54,7 +87,7 @@ RSpec.describe SharedsController, type: :controller do
       it "returns the created shared" do
         post :create, params: valid_params
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response["data"]["url"]).to eq("https://www.youtube.com/watch?v=4GjXSI6jcLI")
+        expect(parsed_response["data"]["url"]).to eq("https://www.youtube.com/watch?v=12345")
       end
     end
 

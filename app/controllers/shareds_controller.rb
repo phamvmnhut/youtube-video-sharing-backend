@@ -4,8 +4,24 @@ class SharedsController < ApplicationController
 
   def index
     begin
-      @shared = Shared.all.order(created_at: :desc)
-      render json: { data: @shared } , include: [:user], status: :ok
+      page = params.fetch(:page, 1).to_i
+      per_page = params.fetch(:per_page, 10).to_i
+
+      total_records = Shared.count
+      total_pages = (total_records.to_f / per_page).ceil
+
+      offset = (page - 1) * per_page
+      @shared = Shared.all.order(created_at: :desc).limit(per_page).offset(offset)
+
+      render json: {
+        data: @shared,
+        pagination: {
+          total_pages: total_pages,
+          current_page: page,
+          total_records: total_records,
+          per_page: per_page
+        }
+      }, include: [:user], status: :ok
     rescue ActiveRecord::RecordNotFound
       render json: { error: "Shared not found"}, status: :not_found
     end

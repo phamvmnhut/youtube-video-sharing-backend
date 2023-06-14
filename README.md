@@ -129,11 +129,21 @@ docker-compose build
 docker-compose up -d
 ```
 Access the application in http://localhost:8080
+- Deploy to Google Cloud
+  + Since we have to containerize all service to docker-compose, we can easy to deploy to cloud or VPS,
+  + Demo link: http://35.247.166.243/
 ## Usage: A brief guide outlining how to use the application, including any specific features or functionality the reviewer should be aware of.
 - Register and login user   
   + On right corner, we have a button for register/login. It will show a modal. We can switch to register and login in this.   
   + After we loged in, we will be able to receive the new video shared notification as the top-right corner popup.  
+- Share interesting Youtube video
+  + Afer login, we can share interesting video via Share video button in top-right corner.
+  + After we share, all user who loged in website will receive the new video shared notification as the top-right corner popup. 
   + In this popup, we can click on refresh button to fresher our data on homepage.   
+- React video share
+  + We can react upvote or downvote in each video
+- View more video links with pagination
+
 ## Troubleshooting: Common issues that may arise during setup and their potential solutions.
 - I have more issues when start with this project, because it is the first time I learn and run with Ruby, Rails technology.
 - I have some bug when setup docker and docker-compose to deploy project such as: how to manage network with multi container, how to optimize the size of image.

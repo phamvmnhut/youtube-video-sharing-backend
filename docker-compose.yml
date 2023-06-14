@@ -51,6 +51,7 @@ services:
       DATABASE_URL: postgresql://your_username:your_password@postgres:5432/your_database
       RAILS_ENV: production
       REDIS_URL: redis://redis:6379
+      SECRET_KEY_BASE: jwt-token-secret
     # volumes:
     #   - .:/app
     depends_on:
